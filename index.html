@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="watch">
+            <div class="outer-circle">
+                <div class="inner-circle">
+                    <span class="text minute">00:</span>
+                    <span class="text sec">00:</span>
+                    <span class="text msec">00</span>
+                </div>
+            </div>
+            <div class="Button-Wrapper">
+                <button class="button reset hidden">Reset</button>
+                <button class="button play" onclick="startStopwatch()">Play</button>
+                <button class="button lap hidden" onclick="recordLap()">Lap</button>
+            </div>
+        </div>
+        <div class="laps-container">
+            <h1>Laps Count List</h1>
+            <ul class="laps"></ul>
+    </div>
+
+    <script>
+        let isRunning = false;
+let interval;
+let startTime = 0;
+let lapCount = 1;
+
+function startStopwatch() {
+    const playButton = document.querySelector('.play');
+    const resetButton = document.querySelector('.reset');
+    const lapButton = document.querySelector('.lap');
+
+    if (!isRunning) {
+        isRunning = true;
+        playButton.textContent = 'Pause';
+        resetButton.classList.remove('hidden');
+        lapButton.classList.remove('hidden');
+
+        startTime = new Date().getTime() - (lapCount > 1 ? lapCount - 1 : 0);
+        interval = setInterval(updateStopwatch, 10);
+    } else {
+        isRunning = false;
+        playButton.textContent = 'Play';
+        clearInterval(interval);
+    }
+}
+
+function updateStopwatch() {
+    const currentTime = new Date().getTime();
+    const elapsedTime = currentTime - startTime;
+
+    const minutes = Math.floor(elapsedTime / (60 * 1000));
+    const seconds = Math.floor((elapsedTime % (60 * 1000)) / 1000);
+    const milliseconds = Math.floor((elapsedTime % 1000));
+
+    document.querySelector('.minute').textContent = padTime(minutes);
+    document.querySelector('.sec').textContent = padTime(seconds);
+    document.querySelector('.msec').textContent = padTime(milliseconds, 3);
+}
+
+function padTime(value, length = 2) {
+    return value.toString().padStart(length, '0');
+}
+
+
+function recordLap() {
+    const lapsContainer = document.querySelector('.laps');
+    const lapTime = document.querySelector('.inner-circle').textContent;
+
+    const lapItem = document.createElement('li');
+    lapItem.className = 'lap-item';
+    lapItem.innerHTML = `<span>Lap ${lapCount}:</span>${lapTime}`;
+    lapsContainer.appendChild(lapItem);
+
+    lapCount++;
+}
+
+
+function resetStopwatch() {
+    clearInterval(interval);
+    isRunning = false;
+    document.querySelector('.play').textContent = 'Play';
+    document.querySelector('.reset').classList.add('hidden');
+    document.querySelector('.lap').classList.add('hidden');
+    document.querySelector('.minute').textContent = '00:';
+    document.querySelector('.sec').textContent = '00:';
+    document.querySelector('.msec').textContent = '00';
+    document.querySelector('.laps').innerHTML = '';
+    lapCount = 1;
+}
+
+document.querySelector('.reset').addEventListener('click', resetStopwatch);
+
+    </script>
+</body>
+</html>
